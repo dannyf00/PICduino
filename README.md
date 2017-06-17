@@ -9,3 +9,5 @@ Demo port of Arduino to PIC10/12/16/18 chips.
 //PIC18: 
 
 Limited functionalities. No support yet for analogRead(), analogWrite(), or serial comms.
+
+May add additional chips / features in the future.
