@@ -1,13 +1,16 @@
 //PICduino GPIO functions for PIC10/12/16/18-family chips
 //compiler: XC8 (developed and tested under v1.12)
 //
+//version: 0.10a
+//6/17/2017: added support for pic18 chips
 //version: 0.10
 //6/17/2017: initial release, based on PIC32duino v0.11
 //supported device list: 
 //PIC10: 
 //PIC12: 12F629/12F675, 
 //PIC16: 16F684, 16F882/883/884/886/887
-//PIC18: 
+//PIC18: //18f2455/2550/4455/4550/2458/2553/4458/4553
+//
 //
 //arduino functions supported:
 //GPIO: pinMode(), digitalWrite(), digitalRead()
@@ -33,9 +36,9 @@
 #include <stdlib.h>									//we use rand()
 
 //PICduino configuration
-#define USE_GPIO									//uncomment if GPIO is available / used
+//#define USE_GPIO									//uncomment if GPIO is available / used
 //#define USE_PORTA									//uncomment if PORTA is available / used
-//#define USE_PORTB									//uncomment if PORTA is available / used
+#define USE_PORTB									//uncomment if PORTA is available / used
 //#define USE_PORTC									//uncomment if PORTA is available / used
 //#define USE_PORTD									//uncomment if PORTA is available / used
 //end PIC32duino configuration
@@ -98,7 +101,7 @@ typedef enum {
 	PA0, PA1, PA2, PA3, PA4, PA5, PA6, PA7, //PA8, PA9, PA10, PA11, PA12, PA13, PA14, PA15,
 #endif
 #if defined(USE_PORTB)
-	PB0, PB1, PB2, PB3, PB4, PB5, PB6, PB7, //PB8, PB9, PB10, PB11, PB12, PB13, PB14, PB15,
+	PB0, PB1, PBIO2, PB3, PB4, PB5, PB6, PB7, //PB8, PB9, PB10, PB11, PB12, PB13, PB14, PB15,
 #endif
 #if defined(USE_PORTC)
 	PC0, PC1, PC2, PC3, PC4, PC5, PC6, PC7, //PC8, PC9, PC10, PC11, PC12, PC13, PC14, PC15,
@@ -106,7 +109,7 @@ typedef enum {
 #if defined(USE_PORTD)
 	PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7, //PD8, PD9, PD10, PD11, PD12, PD13, PD14, PD15,
 #endif
-	PMAX
+	PMAX								//last pin, for error checking
 } PIN_TypeDef;
 
 //map pin number to GPIOx

@@ -111,7 +111,7 @@ inline uint8_t digitalRead(PIN_TypeDef pin) {
 //return timer ticks
 uint32_t ticks(void) {
 	uint32_t m;
-	uint8_t f;
+	uint8_t f;							//for 8-bit timer0
 	
 	do {
 		m = timer_ticks;
@@ -147,7 +147,7 @@ uint32_t millis(void) {
 		f = TMR0;
 	} while (m != timer_ticks);
 		
-	return ((m | f) / clockCyclesPerMillisecond());	//or shift 10 positions
+	return ((m | f) / clockCyclesPerMillisecond()) << 8;	
 }
 
 //delay millisseconds
@@ -233,6 +233,16 @@ void mcu_init(void) {
 	C1ON = 0;							//CM1CON0 = 0x00;						//turn off comparator 1
 	C2ON = 0;							//CM2CON0 = 0x00;						//turn off comparator 2
 	IRCF2 = 1, IRCF1 = 1, IRCF0 = 0;	//0b110 = 4Mhz.
+
+//18f2455/2550/4455/4550
+//18f2458/2553/4458/4553
+
+#elif	defined(_18F2455) || defined(_18F2550) || defined(_18F4455) || defined(_18F4550) || \
+		defined(_18F2458) || defined(_18F2553) || defined(_18F4458) || defined(_18F4553)
+
+	ADCON1 = 0x0f;						//all pins digital
+	CMCON  = 0x07;						//all analog comparators off
+	IRCF2 = 1, IRCF1 = 1, IRCF0 = 0;	//0b111->8Mhz, 0b110->4Mhz, 0b101->2Mhz, ...
 #endif
 
 	//initialize timer1 as time base
@@ -243,8 +253,17 @@ void mcu_init(void) {
 	T0CS = 0;							//use internal clock = Fosc / 4
 	PSA = 0;						//prescaler assigned to tmr0
 
+#if	defined(_18F2455) || defined(_18F2550) || defined(_18F4455) || defined(_18F4550) || \
+	defined(_18F2458) || defined(_18F2553) || defined(_18F4458) || defined(_18F4553)
+#define TMR0		TMR0H				//for compatability
+//	tmr0 prescaler bits in OPTION_REG - on most chips
+	T08BIT = 1;							//tmr0 is 16-bit
+	T0PS2=T0PS1=T0PS0=0;				//0b000->prescaler = 1:1 -> lowest 8bits ignored
+	TMR0ON = 1;							//turn on tmr0
+#else
 //	tmr0 prescaler bits in OPTION_REG - on most chips
 	PS2=PS1=PS0=1;					//0b111->prescaler = 256:1
+#endif
 
 	//tmr0_offset=-period;				//update tmr0_period
 	TMR0 = 0;							//tmr0_offset;					//set the period
